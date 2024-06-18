@@ -1,3 +1,4 @@
 port: 8111
 dbPath: postgres://zxcuser:zxc@postgres:5432/zxcdatabase?sslmode=disable
+externalApi: false
 

@@ -7,6 +7,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/cheggaaa/pb/v3"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
 )
@@ -34,7 +35,8 @@ func main() {
 		fmt.Println("Error on file seek:", err)
 		return
 	}
-
+	bar := pb.StartNew(lineCount)
+	bar.SetMaxWidth(70)
 	scanner := bufio.NewScanner(file)
 	i := 0
 	for scanner.Scan() {
@@ -42,13 +44,11 @@ func main() {
 		line := scanner.Text()
 		fields := strings.Split(line, ",")
 		if len(fields) >= 4 {
-			_, err := db.Exec("INSERT INTO bin (bin, bank) VALUES ($1, $2)", fields[0], fields[4])
-			if err != nil {
-				log.Print(err)
-			}
-			fmt.Printf("\rProgress: %d/%d", i, lineCount)
+			db.Exec("INSERT INTO bin (bin, bank) VALUES ($1, $2)", fields[0], fields[4])
+			bar.Increment()
 		}
 	}
+	bar.Finish()
 }
 
 func count(file *os.File) int {

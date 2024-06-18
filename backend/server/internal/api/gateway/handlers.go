@@ -39,7 +39,7 @@ func (r *Router) bin(c *gin.Context) {
 	}
 	bin, _ := strconv.Atoi(arg)
 	bank := r.storage.Mapping[bin]
-	if bank == "" {
+	if bank == "" && r.cfg.ExternalApi == true {
 		log.Print("going to api")
 		info, err := service.SearchBinInfo(bin)
 		if err != nil {
