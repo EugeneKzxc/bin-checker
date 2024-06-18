@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: pg_container
+    environment:
+      POSTGRES_DB: zxcdatabase
+      POSTGRES_USER: zxcuser
+      POSTGRES_PASSWORD: zxc
+    volumes:
+      - ./backend/init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U zxcuser -d zxcdatabase"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  go-server:
+    build:
+      context: .
+      dockerfile: backend/server/.Dockerfile
+    container_name: server
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8111:8111"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
